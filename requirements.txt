@@ -1,0 +1,11 @@
+aiohttp
+bs4
+duckduckgo-search
+googlesearch-python
+langchain
+langchain-community
+langchain-core
+langchain-ollama
+streamlit
+urllib3
+chardet
