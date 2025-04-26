@@ -53,8 +53,7 @@ if usr_msg := st.chat_input():
         file_result = None
         if uploaded_file is not None:
             with st.spinner("Searching uploaded file..."):
-                
-                file_ext = os.path.splitext(uploaded_file.name)[1]  # e.g., '.pdf' or '.txt'
+                file_ext = os.path.splitext(uploaded_file.name)[1]
                 with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
                     tmp_file.write(uploaded_file.read())
                     file_path = tmp_file.name
@@ -64,10 +63,16 @@ if usr_msg := st.chat_input():
                 elapsed_time = time.time() - start_time
 
                 if file_result:
-                    prompt, sources = file_result
-                    st.success("Answer found in uploaded file!")
+                    prompt, sources, score = file_result
+
+                    if score > 0.7:
+                        st.success("Answer found in uploaded file!")
+                    else:
+                        file_result = None
+                        st.warning("No relevant info found in file. Switching to web search...")
                 else:
                     st.warning("No relevant info found in file within 30 seconds. Switching to web search...")
+
 
         # 2. If file search failed or no file uploaded, go to web
         if not file_result:
@@ -81,4 +86,4 @@ if usr_msg := st.chat_input():
             llm = ChatOllama(model=llm_model, stream=True)
             stream_data = chunk_generator(llm, prompt)
             st.write_stream(stream_data)
-            st.write(sources)
+            # st.write(sources)
