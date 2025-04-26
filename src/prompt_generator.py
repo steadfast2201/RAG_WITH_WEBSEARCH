@@ -8,21 +8,24 @@ from db_operations import add_to_db
 from web_scraper import decode_filename_to_url, remove_temp_files
 from config import CHUNK_OVERLAP, CHUNK_SIZE
 
+
 def load_documents(download_dir: str = "./downloaded") -> list[Document]:
-    text_loader_kwargs={'autodetect_encoding': True}
+    text_loader_kwargs = {"autodetect_encoding": True}
     loader = DirectoryLoader(
         download_dir,
         use_multithreading=True,
         loader_cls=TextLoader,
-        loader_kwargs=text_loader_kwargs)
+        loader_kwargs=text_loader_kwargs,
+    )
     return loader.load()
+
 
 def split_documents(documents):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP
+        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
     )
     return text_splitter.split_documents(documents)
+
 
 def generate_prompt(query: str, embedding_function):
     documents = load_documents()
@@ -45,7 +48,10 @@ def generate_prompt(query: str, embedding_function):
         """
     )
 
-    sources = [decode_filename_to_url(doc.metadata.get("source", "Unknown"))[11:] for doc, _score in results]
+    sources = [
+        decode_filename_to_url(doc.metadata.get("source", "Unknown"))[11:]
+        for doc, _score in results
+    ]
     prompt = prompt_template.format(context=context_text, question=query)
 
     remove_temp_files()

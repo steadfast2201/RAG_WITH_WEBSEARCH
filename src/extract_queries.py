@@ -1,31 +1,60 @@
-from pydantic import BaseModel 
+from pydantic import BaseModel
 from config import MODEL_NAME, PROMPT
 from ollama import chat
 from datetime import datetime
 import json
+from typing import List
 
 class Queries(BaseModel):
-    queries: list[str]
+    """Schema to validate the model output."""
+    queries: List[str]
 
-def extract_queries(query: str, model: str = MODEL_NAME) -> list[str]:
+def extract_queries(query: str, model: str = MODEL_NAME) -> List[str]:
     """
-    Extracts a list of queries from the given user query.
+    Generates a list of precise and optimized search queries from a user's input query.
+
+    This function interacts with a local LLM (using the Ollama API) to create queries
+    suited for both web search and local document search.
 
     Args:
-        query (str): The user's input query.
-        model (str, optional): The language model to use. Defaults to the value in config.MODEL_NAME.
-        
+        query (str): The original input query provided by the user.
+        model (str, optional): The model name to use for query generation. Defaults to MODEL_NAME.
+
     Returns:
-        List[str]: A list of extracted queries.
+        List[str]: A list of optimized search queries.
+
+    Raises:
+        ValueError: If the model response is not in the expected format.
     """
+    # Prepare the formatted prompt with today's date
+    formatted_prompt = PROMPT.format(
+        date=datetime.today().strftime('%Y-%m-%d'), 
+        input_query=query
+    )
+
+    # Call the model to generate queries
     response = chat(
         model=model,
-        messages=[{"role": "user", "content": PROMPT.format(date=datetime.today().strftime('%Y-%m-%d'), input_query=query)}],
-        options={"temperature":0.2},
+        messages=[{"role": "user", "content": formatted_prompt}],
+        options={"temperature": 0.2},
         format=Queries.model_json_schema()
     )
 
-    queries = response['message']['content']
+    # Extract the 'content' field from the model response
+    content = response.get('message', {}).get('content', None)
 
-    queries = json.loads(queries)
-    return queries["queries"]
+    if content is None:
+        raise ValueError("No 'content' field found in the model response.")
+
+    try:
+        # Attempt to parse the content as JSON
+        parsed_response = json.loads(content)
+        queries = parsed_response.get("queries", None)
+
+        if queries is None or not isinstance(queries, list):
+            raise ValueError("Parsed response does not contain a valid 'queries' list.")
+
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse model response as JSON: {e}")
+
+    return queries
