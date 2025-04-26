@@ -9,3 +9,5 @@ langchain-ollama
 streamlit
 urllib3
 chardet
+pypdf
+faiss-cpu
