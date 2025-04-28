@@ -1,6 +1,6 @@
 import streamlit as st
 from langchain_ollama.chat_models import ChatOllama
-from extract_queries import extract_queries
+from extract_queries import extract_query
 from web_scraper import fetch_web_pages
 from db_operations import get_embedding_function, search_in_file
 from prompt_generator import generate_prompt
