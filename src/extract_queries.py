@@ -9,7 +9,7 @@ class Queries(BaseModel):
     """Schema to validate the model output."""
     queries: List[str]
 
-def extract_query(query: str, model: str = MODEL_NAME) -> List[str]:
+def extract_queries(query: str, model: str = MODEL_NAME) -> List[str]:
     """
     Generates a list of precise and optimized search queries from a user's input query.
 
