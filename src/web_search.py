@@ -7,17 +7,30 @@ from duckduckgo_search import DDGS
 from bs4 import BeautifulSoup
 from config_settings import REQUESTS_HEADER  # Custom headers for HTTP requests
 
-# -----------------------
-# Utility Functions
-# -----------------------
+
+# Taking in queries (usually from an LLM like LLaMA or GPT)
+# Running those queries on search engines (Google or DuckDuckGo)
+# Downloading the web pages asynchronously
+# Extracting the visible body text
+# Saving the text to local files (in a ./downloaded folder)
+# Cleaning up files afterward (optional)
 
 
 # Encode URL into a safe filename format
+# Converts any URL into a filesystem-safe filename by percent-encoding it.
+# Example:
+#     Input: https://example.com/page?q=test
+#     Output: https%3A%2F%2Fexample.com%2Fpage%3Fq%3Dtest
 def encode_url_to_filename(url):
     return urllib.parse.quote(url, safe="")
 
 
 # Decode filename back into the original URL
+# This is the core async fetcher:
+#     Uses aiohttp to make a GET request to the url
+#     Parses the HTML with BeautifulSoup
+#     Extracts only the visible text from the <body> tag
+#     Writes it into a .txt file named using the encoded URL
 def decode_filename_to_url(filename):
     return urllib.parse.unquote(filename)
 
@@ -25,7 +38,6 @@ def decode_filename_to_url(filename):
 # -----------------------
 # Web Fetching Logic
 # -----------------------
-
 
 # Asynchronously fetch the HTML content of a URL, extract visible text from <body>, and save it to a file
 async def fetch_and_save(session, url, folder):
@@ -38,7 +50,7 @@ async def fetch_and_save(session, url, folder):
             response.raise_for_status()  # Raise exception for non-200 responses
             content = await response.text()
             soup = BeautifulSoup(content, "html.parser")
-            text = soup.find("body").get_text(strip=True)  # Extract visible body text
+            text = soup.find("body").get_text(strip=True)  # Extract visible body text # type:ignore
             with open(filepath, "w", encoding="utf-8") as file:
                 file.write(text)
             print(f"Saved: {filepath}")
@@ -75,7 +87,7 @@ async def fetch_web_pages(
         urls = get_urls(query, num_results, provider)
 
         async with aiohttp.ClientSession(headers=REQUESTS_HEADER) as session:
-            tasks = [fetch_and_save(session, url, download_dir) for url in urls]
+            tasks = [fetch_and_save(session, url, download_dir) for url in urls] # type:ignore
             await asyncio.gather(*tasks)  # Run all fetch tasks concurrently
 
 

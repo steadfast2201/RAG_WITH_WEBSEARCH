@@ -44,7 +44,7 @@ if usr_msg := st.chat_input("Ask your question..."):
 
     with st.chat_message("assistant"):
         with st.spinner("Extracting queries from your question..."):
-            queries = extract_queries(usr_msg, model=llm_model)
+            queries = extract_queries(usr_msg, model=llm_model) # type:ignore
 
         sources = ""
         prompt = ""
@@ -83,11 +83,11 @@ if usr_msg := st.chat_input("Ask your question..."):
                 prompt, sources = generate_prompt(usr_msg, embedding_function)
 
         with st.spinner("Generating response using LLM..."):
-            llm = ChatOllama(model=llm_model, stream=True)
+            llm = ChatOllama(model=llm_model, stream=True) # type:ignore
             answer = ""
 
             for chunk in chunk_generator(llm, prompt):
-                answer += chunk.content
+                answer += chunk.content # type:ignore
 
             st.session_state.messages.append({
                 "role": "assistant", 

@@ -8,6 +8,20 @@ from document_web_processing import add_to_db
 from web_search import decode_filename_to_url, remove_temp_files
 from config_settings import CHUNK_OVERLAP, CHUNK_SIZE
 
+# The code loads local documents (from a folder), chunks them into manageable text pieces, indexes them into a vector database using embeddings, 
+# performs similarity search for a query, and generates a contextualized prompt for an LLM to answer the query.
+
+                                    # Local TXT files → Load → Chunk → Embed → Vector DB
+                                    #                         ↓
+                                    #                       Query
+                                    #                         ↓
+                                    #             Similarity Search on Chunks
+                                    #                         ↓
+                                    #            Generate Context-Aware Prompt
+                                    #                         ↓
+                                    #       [Prompt, List of Source URLs] returned
+
+
 
 def load_documents(download_dir: str = "./downloaded") -> list[Document]:
     text_loader_kwargs = {"autodetect_encoding": True}
