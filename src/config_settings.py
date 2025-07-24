@@ -7,8 +7,6 @@ REQUESTS_HEADER = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
 }
 PROMPT = """
-Here's your updated prompt with the additional note that it also works with locally uploaded documents, without changing any other part of the structure:
-
 ---
 You are a query generator designed to assist with web searches and Document searches.  
 Today date is {date}.  
